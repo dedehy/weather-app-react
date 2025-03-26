@@ -1,42 +1,29 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect } from "react";
 import { MainWrapper } from "./weather.module";
-import axios from "axios";
 import SearchBar from "./SearchBar";
 import Loading from "./Loading";
 import WeatherInfo from "./WeatherInfo";
+import { fetchWeatherByCity, fetchWeatherByCoords } from "../api/weatherApi";
 
 const DisplayWeather = () => {
-  const api_key = "82a45461ddde05ce2bdb97ed1e382848";
-  const api_endpoint = "https://api.openweathermap.org/data/2.5/";
-
   const [weatherData, setWeatherData] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [searchCity, setSearchCity] = useState("");
-
-  const fetchCurrentWeather = useCallback(
-    async (lat: number, lon: number) => {
-      const url = `${api_endpoint}weather?lat=${lat}&lon=${lon}&appid=${api_key}&units=metric`;
-      const response = await axios.get(url);
-      return response.data;
-    },
-    [api_endpoint, api_key]
-  );
-
-  const fetchWeatherData = async (city: string) => {
-      const url = `${api_endpoint}weather?q=${city}&appid=${api_key}&units=metric`;
-      const response = await axios.get(url);
-      return response.data;
-  };
+  const [error, setError] = useState("");
 
   const handleSearch = async () => {
-    if(!searchCity.trim()){
+    if (!searchCity.trim()) {
+      setError("Please enter a city name.");
       return;
     }
-    try{
-      const data = await fetchWeatherData(searchCity);
+
+    try {
+      const data = await fetchWeatherByCity(searchCity);
       setWeatherData(data);
-    }catch(error){
+      // setError("");
+    } catch (error) {
       console.error(error);
+      setError("City not found. Please try again.");
     }
   };
 
@@ -44,13 +31,19 @@ const DisplayWeather = () => {
     const fetchData = async () => {
       navigator.geolocation.getCurrentPosition(async (position) => {
         const { latitude, longitude } = position.coords;
-        const data = await fetchCurrentWeather(latitude, longitude);
-        setWeatherData(data);
-        setIsLoading(true);
+        try {
+          const data = await fetchWeatherByCoords(latitude, longitude);
+          setWeatherData(data);
+          setIsLoading(true);
+        } catch (error) {
+          console.error(error);
+          setError("Failed to fetch weather for your location.");
+        }
       });
     };
+
     fetchData();
-  }, [fetchCurrentWeather]);
+  }, []);
 
   return (
     <MainWrapper>
@@ -60,6 +53,8 @@ const DisplayWeather = () => {
           setSearchCity={setSearchCity}
           handleSearch={handleSearch}
         />
+
+        {error && <p className="error">{error}</p>}
 
         {weatherData && isLoading ? (
           <WeatherInfo weatherData={weatherData} />

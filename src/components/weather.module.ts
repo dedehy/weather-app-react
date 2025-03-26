@@ -63,8 +63,6 @@ export const MainWrapper = styled.div`
 
     > .icon {
       font-size: 9rem;
-
-      /* DO LATER NOT WHEN CREATING UI */
     }
 
     > h1 {
@@ -126,7 +124,6 @@ export const MainWrapper = styled.div`
 
     .loadingIcon {
       font-size: 3rem;
-      /* DO LATER NOT WHEN CREATING UI */
       animation: spin 2s linear infinite;
     }
     p {
@@ -136,7 +133,11 @@ export const MainWrapper = styled.div`
     }
   }
 
-  /* DO LATER NOT WHEN CREATING UI */
+  .error {
+    color: red;
+    margin: 10px;
+  }
+
   @keyframes spin {
     from {
       transform: rotate(0deg);

@@ -25,7 +25,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
           }
         }}
       />
-
       <div className="searchCircle">
         <AiOutlineSearch className="searchIcon" onClick={handleSearch} />
       </div>
